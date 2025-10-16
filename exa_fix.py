@@ -1,15 +1,12 @@
 import yaml, os
 import cv2 as cv
 import numpy as np
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-
-data = 'chess.yaml'
-dirf = './NOW'
-imageIn = f'{dirf}/IMAGE.jpg'
-imageOut = f'{dirf}/FIXED.jpg'
 
 if __name__ == '__main__':
+    data = 'chess.yaml'
+    dirf = './NOW'
+    imageIn = f'{dirf}/IMAGE.jpg'
+    imageOut = f'{dirf}/FIXED.jpg'
     if not os.path.exists(data):
         exit(1)
     
@@ -17,14 +14,17 @@ if __name__ == '__main__':
     mtx = fs.getNode('K').mat()
     dist = fs.getNode('D').mat()
 
-    cam = cv.imread(imageIn)
-    h, w = cam.shape[:2]
+    try:
+        cam = cv.imread(imageIn)
+        h, w = cam.shape[:2]
+
+    except:
+        pass
 
     newcam, roi = cv.getOptimalNewCameraMatrix(mtx, dist, (w,h), 1, (w,h))
-    
-    mapx, mapy = cv.initUndistortRectifyMap(mtx, dist, None, newcam, (w,h), 5)
-    dst = cv.remap(cam, mapx, mapy, cv.INTER_LINEAR)
 
+    dst = cv.undistort(cam, mtx, dist, None, newcam)
+ 
     x, y, w, h = roi
     dst = dst[y:y+h, x:x+w]
     cv.imwrite(imageOut, dst)

@@ -1,19 +1,27 @@
 import cv2 as cv
 import os
 
-device = 2
-dirf = './NOW'
 
-if __name__ == '__main__':
-    os.makedirs(dirf, exist_ok=True)
-    cam = cv.VideoCapture(device)
+def get(DEVICE: int, DIR: str, FILE: str):
+    cam = cv.VideoCapture(DEVICE)
+
     cam.set(cv.CAP_PROP_FRAME_HEIGHT, 1080)
     cam.set(cv.CAP_PROP_FRAME_WIDTH, 1920)
 
-    if cam.isOpened():
-        print('RUNING...')
-        while True:
-            ret, frame = cam.read()
-            cv.imwrite(os.path.join(dirf, f'IMAGE.jpg'), frame)
-        cv.release()
-    cv.destroyAllWindows()
+    if not cam.isOpened():
+        return False
+
+    ret, frame= cam.read()
+
+    cam.release()
+
+    if ret:
+        os.makedirs(DIR, exist_ok = True)
+        cv.imwrite(os.path.join(DIR, FILE), frame)
+        return True
+    return False
+
+if __name__ == '__main__':
+    device = 2
+    dirf = './NOW'
+    print(get(device, dirf, 'IMAGE.jpg'))
